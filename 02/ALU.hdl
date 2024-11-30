@@ -41,5 +41,28 @@ CHIP ALU {
         ng;      // if (out < 0)  equals 1, else 0
 
     PARTS:
-    //// Replace this comment with your code.
+    // Working X negation/zeroing
+    Mux16(a=x, b=false, sel=zx, out=ifzx);
+    Not16(in=ifzx, out=notifnx);
+    Mux16(a=ifzx, b=notifnx, sel=nx, out=readyX);
+
+    // Working Y negation/zeroing
+    Mux16(a=y, b=false, sel=zy, out=ifzy);
+    Not16(in=ifzy, out=notifny);
+    Mux16(a=ifzy, b=notifny, sel=ny, out=readyY);
+
+    // Function part out = x + y or out = x & y depending on f value
+    Add16(a=readyX, b=readyY, out=xAddY);
+    And16(a=readyX, b=readyY, out=xAndY);
+    Mux16(a=xAndY, b=xAddY, sel=f, out=fout);
+
+    // Checking if negate output is true, if so set out to Not16
+    Not16(in=fout, out=notfout);
+    Mux16(a=fout, b=notfout, sel=no, out=out, out[15] = ng, out[0..7] = zrLow, out[8..15] = zrHigh);
+
+    // Doing zr part
+    Or8Way(in=zrLow, out=or1Out);
+    Or8Way(in=zrHigh, out=or2Out);
+    Or(a=or2Out, b=or1Out, out=or3Out);
+    Not(in=or3Out, out=zr);
 }
