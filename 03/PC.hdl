@@ -14,5 +14,11 @@ CHIP PC {
     OUT out[16];
     
     PARTS:
-    //// Replace this comment with your code.
+    // Setting load to true to always update the value of the register after checking the conditions
+    Register(in=resetMux, load=true, out=out, out=registerOut);
+    
+    Mux16(a=loadMux, b=false, sel=reset, out=resetMux);
+    Mux16(a=incMux, b=in, sel=load, out=loadMux);
+    Inc16(in=registerOut, out=incout);
+    Mux16(a=registerOut, b=incout, sel=inc, out=incMux);
 }
